@@ -1,8 +1,8 @@
 export const config = {
-  API_BASE_URL: 'http://192.168.1.100:8000', // Change this to your production IP
-  AUTH_SERVICE_URL: 'http://192.168.1.100:8001',
-  CONTENT_SERVICE_URL: 'http://192.168.1.100:8082',
-  ASSIGNMENT_SERVICE_URL: 'http://192.168.1.100:8004',
+  API_BASE_URL: process.env.REACT_APP_API_BASE_URL || '',
+  AUTH_SERVICE_URL: process.env.REACT_APP_AUTH_SERVICE_URL || '/api',
+  CONTENT_SERVICE_URL: process.env.REACT_APP_CONTENT_SERVICE_URL || '/api',
+  ASSIGNMENT_SERVICE_URL: process.env.REACT_APP_ASSIGNMENT_SERVICE_URL || '/api',
   
   // Feature flags
   ENABLE_DEBUG_LOGS: false,
@@ -10,7 +10,7 @@ export const config = {
   
   // UI settings
   ITEMS_PER_PAGE: 20,
-  TIMEOUT_MS: 10000,
+  TIMEOUT_MS: 15000,
   
   // App info
   APP_NAME: 'LMS Platform',

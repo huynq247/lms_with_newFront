@@ -15,7 +15,7 @@ export interface AppConfig {
 
 // Load config from environment variables
 export const config: AppConfig = {
-  API_BASE_URL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000',
+  API_BASE_URL: process.env.REACT_APP_API_BASE_URL || '',
   AUTH_SERVICE_URL: process.env.REACT_APP_AUTH_SERVICE_URL || 'http://localhost:8001',
   CONTENT_SERVICE_URL: process.env.REACT_APP_CONTENT_SERVICE_URL || 'http://localhost:8002',
   ASSIGNMENT_SERVICE_URL: process.env.REACT_APP_ASSIGNMENT_SERVICE_URL || 'http://localhost:8004',

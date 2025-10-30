@@ -2,6 +2,7 @@
   "name": "frontend-student",
   "version": "0.1.0",
   "private": true,
+  "homepage": "/student",
   "scripts": {
     "start": "set PORT=3003&& react-scripts start",
     "start:dev": "set REACT_APP_ENV=development&& react-scripts start",

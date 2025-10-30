@@ -95,7 +95,7 @@ function App() {
       <CssBaseline />
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <Router>
+          <Router basename="/student">
             <Routes>
               {/* Public Routes */}
               <Route path="/login" element={<LoginPage />} />

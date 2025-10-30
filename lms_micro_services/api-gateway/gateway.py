@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
 import asyncio
+import os
 from typing import Any
 
 app = FastAPI(
@@ -69,10 +70,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Service URLs - update these if services run on different ports
-AUTH_SERVICE_URL = "http://localhost:8001"
-ASSIGNMENT_SERVICE_URL = "http://localhost:8004"
-CONTENT_SERVICE_URL = "http://localhost:8002"
+# Service URLs - read from environment variables with fallback to localhost
+AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL", "http://localhost:8001")
+ASSIGNMENT_SERVICE_URL = os.getenv("ASSIGNMENT_SERVICE_URL", "http://localhost:8004")
+CONTENT_SERVICE_URL = os.getenv("CONTENT_SERVICE_URL", "http://localhost:8002")
 
 async def forward_request(url: str, method: str, headers: dict, params: dict = None, json_data: Any = None):
     """Forward request to target service"""

@@ -40,6 +40,7 @@ const LessonInlineViewer: React.FC<LessonInlineViewerProps> = ({
   const [videoProgress, setVideoProgress] = useState(0);
   const [lessonCompleted, setLessonCompleted] = useState(false);
   const [contentExpanded, setContentExpanded] = useState(true);
+  const [youtubeEmbedFailed, setYoutubeEmbedFailed] = useState(false);
 
   const handleVideoPlay = () => {
     setIsVideoPlaying(true);
@@ -72,18 +73,22 @@ const LessonInlineViewer: React.FC<LessonInlineViewerProps> = ({
     
     console.log('🎥 Processing video URL (Inline):', url);
     
-    // YouTube URL conversion
+    // YouTube URL conversion with simplified approach
     if (url.includes('youtube.com/watch?v=')) {
       const videoId = url.split('v=')[1]?.split('&')[0];
-      const embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0&modestbranding=1`;
+      // Use standard YouTube embed with minimal parameters
+      const embedUrl = `https://www.youtube.com/embed/${videoId}`;
       console.log('🎬 YouTube embed URL (Inline):', embedUrl);
+      console.log('📝 Note: If video shows "unavailable", the creator disabled embedding');
       return embedUrl;
     }
     
     if (url.includes('youtu.be/')) {
       const videoId = url.split('youtu.be/')[1]?.split('?')[0];
-      const embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0&modestbranding=1`;
+      // Use standard YouTube embed with minimal parameters
+      const embedUrl = `https://www.youtube.com/embed/${videoId}`;
       console.log('🎬 YouTube short embed URL (Inline):', embedUrl);
+      console.log('📝 Note: If video shows "unavailable", the creator disabled embedding');
       return embedUrl;
     }
     
@@ -95,7 +100,7 @@ const LessonInlineViewer: React.FC<LessonInlineViewerProps> = ({
       return embedUrl;
     }
     
-    // Google Drive URL conversion
+    // Google Drive URL conversion - multiple formats for better compatibility
     if (url.includes('drive.google.com')) {
       let fileId = '';
       
@@ -107,11 +112,11 @@ const LessonInlineViewer: React.FC<LessonInlineViewerProps> = ({
       }
       
       if (fileId) {
-        // Try different Google Drive embed formats
-        // First try the standard preview format
+        // Try using the preview format which works better for embedded players
         const embedUrl = `https://drive.google.com/file/d/${fileId}/preview`;
-        console.log('🎬 Google Drive embed URL (Inline):', embedUrl);
-        console.log('📝 Note: If video doesn\'t play, ensure file is shared with "Anyone with the link"');
+        console.log('🎬 Google Drive preview URL (Inline):', embedUrl);
+        console.log('📝 Note: Ensure file sharing is set to "Anyone with the link"');
+        console.log('💡 Alternative: Use direct download URL or upload to LMS');
         return embedUrl;
       }
     }
@@ -220,23 +225,137 @@ const LessonInlineViewer: React.FC<LessonInlineViewerProps> = ({
                 embedUrl.includes('sharepoint.com') ||
                 embedUrl !== lesson.video_url // URL was converted, so it's embeddable
               ) ? (
-                <iframe
-                  src={embedUrl}
-                  title={lesson.title}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    border: 'none',
-                    borderRadius: '8px'
-                  }}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  onLoad={() => console.log('✅ Inline video iframe loaded successfully')}
-                  onError={() => console.error('❌ Inline video iframe failed to load')}
-                />
+                <Box>
+                  {(embedUrl.includes('youtube.com') || embedUrl.includes('youtube-nocookie.com')) ? (
+                    // YouTube - Try embedding with fallback if it fails
+                    <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+                      {!youtubeEmbedFailed ? (
+                        // Try to embed the video
+                        <iframe
+                          src={embedUrl}
+                          title={lesson.title}
+                          style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            border: 'none',
+                            borderRadius: '8px',
+                            backgroundColor: '#000'
+                          }}
+                          allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                          allowFullScreen
+                          loading="eager"
+                          onLoad={() => {
+                            console.log('✅ YouTube iframe loaded');
+                            // Give it 3 seconds to load, if still black screen, show fallback
+                            setTimeout(() => {
+                              console.log('⏱️ Checking YouTube embed status...');
+                            }, 3000);
+                          }}
+                          onError={() => {
+                            console.log('❌ YouTube embed failed');
+                            setYoutubeEmbedFailed(true);
+                          }}
+                        />
+                      ) : (
+                        // Show fallback button if embedding failed
+                        <Box sx={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                          color: 'white',
+                          borderRadius: '8px',
+                          textAlign: 'center',
+                          padding: 3,
+                          cursor: 'pointer',
+                          transition: 'all 0.3s ease',
+                          '&:hover': {
+                            transform: 'scale(1.02)',
+                            boxShadow: '0 8px 16px rgba(0,0,0,0.3)',
+                          }
+                        }}
+                        onClick={() => window.open(lesson.video_url, '_blank')}
+                        >
+                          <Box sx={{ fontSize: '4rem', mb: 2 }}>▶️</Box>
+                          <Typography variant="h5" sx={{ mb: 1, fontWeight: 'bold' }}>
+                            YouTube Video
+                          </Typography>
+                          <Typography variant="body1" sx={{ mb: 3, opacity: 0.95 }}>
+                            Embedding restricted. Click to watch on YouTube.
+                          </Typography>
+                          <Button
+                            variant="contained"
+                            size="large"
+                            onClick={(e: any) => {
+                              e.stopPropagation();
+                              window.open(lesson.video_url, '_blank');
+                            }}
+                            sx={{
+                              backgroundColor: '#FF0000',
+                              color: 'white',
+                              fontSize: '1.1rem',
+                              padding: '12px 32px',
+                              '&:hover': {
+                                backgroundColor: '#CC0000',
+                              }
+                            }}
+                          >
+                            🚀 Open YouTube
+                          </Button>
+                        </Box>
+                      )}
+                      
+                      {/* Manual fallback button overlay (always visible) */}
+                      <Button
+                        variant="contained"
+                        size="small"
+                        onClick={() => window.open(lesson.video_url, '_blank')}
+                        sx={{
+                          position: 'absolute',
+                          bottom: 16,
+                          right: 16,
+                          backgroundColor: 'rgba(255, 0, 0, 0.9)',
+                          color: 'white',
+                          zIndex: 10,
+                          '&:hover': {
+                            backgroundColor: '#FF0000',
+                          }
+                        }}
+                      >
+                        Open in YouTube
+                      </Button>
+                    </Box>
+                  ) : (
+                    // Regular iframe for non-YouTube videos
+                    <iframe
+                      src={embedUrl}
+                      title={lesson.title}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        border: 'none',
+                        borderRadius: '8px'
+                      }}
+                      allow="autoplay; encrypted-media; picture-in-picture; web-share; fullscreen"
+                      allowFullScreen
+                      loading="lazy"
+                      onLoad={() => console.log('✅ Video iframe loaded successfully')}
+                      onError={() => console.error('❌ Video iframe failed to load')}
+                    />
+                  )}
+                </Box>
               ) : (
                 <video
                   controls

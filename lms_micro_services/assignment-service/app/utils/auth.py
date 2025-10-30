@@ -23,7 +23,7 @@ async def get_current_user_from_request(request: Request) -> UserInfo:
     try:
         async with httpx.AsyncClient(timeout=5.0) as client:
             response = await client.get(
-                "http://localhost:8001/api/v1/auth/me",
+                "http://auth-service:8001/api/v1/auth/me",
                 headers={"Authorization": f"Bearer {token}"}
             )
             

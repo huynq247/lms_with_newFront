@@ -16,13 +16,13 @@ class Settings(BaseSettings):
     allowed_hosts: List[str] = ["*"]
     
     # MongoDB configuration
-    mongodb_url: str = "mongodb://admin:Mypassword123@14.161.50.86:27017/content_db?authSource=admin&serverSelectionTimeoutMS=5000&connectTimeoutMS=10000&socketTimeoutMS=10000"
-    mongodb_db_name: str = "content_db"
+    mongodb_url: str = os.environ.get("MONGODB_URL", "mongodb://admin:Mypassword123@14.161.50.86:27017/content_db?authSource=admin&serverSelectionTimeoutMS=5000&connectTimeoutMS=10000&socketTimeoutMS=10000")
+    mongodb_db_name: str = os.environ.get("MONGODB_DB_NAME", "content_db")
     
     # Auth Service integration
-    auth_service_url: str = "http://localhost:8001"
-    jwt_secret_key: str = "microservices-lms-secret-key-2025-production-secure-auth-service"
-    jwt_algorithm: str = "HS256"
+    auth_service_url: str = os.environ.get("AUTH_SERVICE_URL", "http://localhost:8001")
+    jwt_secret_key: str = os.environ.get("JWT_SECRET_KEY", "microservices-lms-secret-key-2025-production-secure-auth-service")
+    jwt_algorithm: str = os.environ.get("JWT_ALGORITHM", "HS256")
     jwt_expiration_time: int = 1440  # minutes
     
     # AI Configuration

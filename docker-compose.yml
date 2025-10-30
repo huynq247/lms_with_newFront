@@ -4,6 +4,24 @@ version: '3.8'
 # Chỉ cần điều chỉnh file .env để thay đổi IP và port
 
 services:
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: lms-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - lms-network
+    depends_on:
+      - api-gateway
+      - frontend-admin
+      - frontend-teacher
+      - frontend-student
+    restart: unless-stopped
+
   # Backend Services
   api-gateway:
     build: ./lms_micro_services/api-gateway
@@ -123,7 +141,10 @@ services:
 
   # Frontend Applications
   frontend-admin:
-    build: ./lms_micro_services/frontend-admin
+    build: 
+      context: ./lms_micro_services/frontend-admin
+      args:
+        REACT_APP_API_BASE_URL: ${API_GATEWAY_URL}
     container_name: lms-frontend-admin
     ports:
       - "${FRONTEND_ADMIN_PORT}:80"
@@ -145,7 +166,10 @@ services:
     restart: unless-stopped
 
   frontend-teacher:
-    build: ./lms_micro_services/frontend-teacher
+    build: 
+      context: ./lms_micro_services/frontend-teacher
+      args:
+        REACT_APP_API_BASE_URL: ${API_GATEWAY_URL}
     container_name: lms-frontend-teacher
     ports:
       - "${FRONTEND_TEACHER_PORT}:80"
@@ -167,7 +191,10 @@ services:
     restart: unless-stopped
 
   frontend-student:
-    build: ./lms_micro_services/frontend-student
+    build: 
+      context: ./lms_micro_services/frontend-student
+      args:
+        REACT_APP_API_BASE_URL: ${API_GATEWAY_URL}
     container_name: lms-frontend-student
     ports:
       - "${FRONTEND_STUDENT_PORT}:80"

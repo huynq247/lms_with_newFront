@@ -1,9 +1,13 @@
 FROM node:16-alpine as build
 
+# Accept build argument for API URL
+ARG REACT_APP_API_BASE_URL=/api
+
 # Tăng bộ nhớ cho Node.js và tối ưu hóa cấu hình npm
 ENV NODE_OPTIONS="--max-old-space-size=8192"
 ENV GENERATE_SOURCEMAP=false
 ENV DISABLE_ESLINT_PLUGIN=true
+ENV REACT_APP_API_BASE_URL=$REACT_APP_API_BASE_URL
 
 WORKDIR /app
 

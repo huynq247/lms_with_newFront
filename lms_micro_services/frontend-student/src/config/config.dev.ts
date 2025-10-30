@@ -1,8 +1,8 @@
 export const config = {
-  API_BASE_URL: 'http://localhost:8000',
-  AUTH_SERVICE_URL: 'http://localhost:8001',
-  CONTENT_SERVICE_URL: 'http://localhost:8082',
-  ASSIGNMENT_SERVICE_URL: 'http://localhost:8004',
+  API_BASE_URL: process.env.REACT_APP_API_BASE_URL || '',
+  AUTH_SERVICE_URL: process.env.REACT_APP_AUTH_SERVICE_URL || 'http://localhost:8001',
+  CONTENT_SERVICE_URL: process.env.REACT_APP_CONTENT_SERVICE_URL || 'http://localhost:8082',
+  ASSIGNMENT_SERVICE_URL: process.env.REACT_APP_ASSIGNMENT_SERVICE_URL || 'http://localhost:8004',
   
   // Feature flags
   ENABLE_DEBUG_LOGS: true,
